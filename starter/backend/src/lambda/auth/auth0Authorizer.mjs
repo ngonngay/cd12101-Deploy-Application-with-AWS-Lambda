@@ -47,7 +47,12 @@ async function verifyToken(authHeader) {
   const jwt = jsonwebtoken.decode(token, { complete: true })
 
   // TODO: Implement token verification
-  return undefined;
+  const jwks = await Axios.get(jwksUrl)
+  const publicKey = jwks.data.keys.find(k=> k.kid == jwt.header.kid)['x5c'][0]
+  // https://auth0.com/blog/navigating-rs256-and-jwks/
+  logger.info('get publicKey successfully: ', publicKey)
+  const cert = `-----BEGIN CERTIFICATE-----\n${publicKey}\n-----END CERTIFICATE-----`;
+  return verify(token, cert, { algorithms: ['RS256']});
 }
 
 function getToken(authHeader) {
@@ -61,3 +66,5 @@ function getToken(authHeader) {
 
   return token
 }
+
+
