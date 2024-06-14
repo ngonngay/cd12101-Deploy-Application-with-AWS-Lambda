@@ -2,7 +2,7 @@
 org: thangvlth
 # "app" enables Serverless Framework Dashboard features and sharing them with other Services.
 app: project4
-service: serverless-todo-app-3
+service: serverless-todo-app
 
 plugins:
   - serverless-iam-roles-per-function
@@ -19,11 +19,11 @@ provider:
     apiGateway: true
 
   environment:
-    PROJECT_NAME: serverless-todo-app-3
-    TODOS_TABLE: Todos-3-${self:provider.stage}
+    PROJECT_NAME: serverless-todo-app
+    TODOS_TABLE: Todos-${self:provider.stage}
     TODOS_CREATED_AT_INDEX: CreatedAtIndex
-    S3_BUCKET_NAME: serverless-3-todo-bucket-${self:provider.stage}
-    ATTACHMENT_S3_BUCKET: thangvlth-udacity-3-${self:provider.stage}
+    S3_BUCKET_NAME: serverless-todo-bucket-${self:provider.stage}
+    ATTACHMENT_S3_BUCKET: thangvlth-udacity-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
 
   logs:
@@ -73,6 +73,9 @@ functions:
           path: todos
           cors: true
           authorizer: Auth
+          request:
+            schemas:
+              application/json: ${file(models/create-schema.json)}
     iamRoleStatementsName: ${self:provider.environment.PROJECT_NAME}-create-todo-role-${self:provider.stage}
     iamRoleStatements:
       - Effect: Allow
@@ -94,6 +97,9 @@ functions:
           path: todos/{todoId}
           cors: true
           authorizer: Auth 
+          request:
+            schemas:
+              application/json: ${file(models/update-schema.json)}
     iamRoleStatementsName: ${self:provider.environment.PROJECT_NAME}-update-todo-role-${self:provider.stage}
     iamRoleStatements:
       - Effect: Allow
@@ -238,3 +244,11 @@ resources:
               Principal: '*'
               Action: s3:*
               Resource: 'arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*'
+    BodyValidator:
+      Type: AWS::ApiGateway::RequestValidator
+      Properties:
+        Name: 'body-validator'
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        ValidateRequestBody: true
+        ValidateRequestParameters: false
