@@ -1,8 +1,7 @@
-import * as AWS from 'aws-sdk';
-import { createLogger } from '../utils/logger';
-import { Types } from 'aws-sdk/clients/s3';
+import AWS from 'aws-sdk';
+import { createLogger } from '../utils/logger.mjs';
 
-const AWSXRay = require('aws-xray-sdk');
+import AWSXRay from 'aws-xray-sdk-core';
 const XAWS = AWSXRay.captureAWS(AWS);
 const log = createLogger('AttachmentUtils');
 
@@ -13,7 +12,7 @@ export class S3AttachmentHelper {
     this.urlExpiration = parseInt(process.env.SIGNED_URL_EXPIRATION);
   }
 
-  async generateAttachmentPresignedUrl(attachmentId) {
+  async generatePresignedUrl(attachmentId) {
     const presignedUrl = this.s3Client.getSignedUrl('putObject', {
       Bucket: this.bucketName,
       Key: attachmentId,

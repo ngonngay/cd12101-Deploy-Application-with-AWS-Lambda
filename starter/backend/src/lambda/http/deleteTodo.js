@@ -1,11 +1,19 @@
-import 'source-map-support/register'
-import * as middy from 'middy'
-import { cors, httpErrorHandler } from 'middy/middlewares'
+import 'source-map-support/register.js'
 
-import { remove } from '../../businessLogic/todos'
-import { getUserId } from '../utils'
+import middy from '@middy/core'
+import httpCorsMiddleware from '@middy/http-cors'
+import httpErrorHandlerMiddleware from '@middy/http-error-handler'
 
-export const handler = middy(async (event) => {
+import { remove } from '../../businessLogic/todos.mjs'
+import { getUserId } from '../utils.mjs'
+
+export const handler = middy({
+  timeoutEarlyResponse: () => {
+    return {
+      statusCode: 408
+    }
+  }
+}).handler(async (event) => {
   const todoId = event.pathParameters.todoId
   // TODO: Remove a TODO item by id
 
@@ -17,8 +25,6 @@ export const handler = middy(async (event) => {
     statusCode: 200,
     body: JSON.stringify({})
   }
-}).use(httpErrorHandler()).use(
-  cors({
-    credentials: true
-  })
-)
+})
+  .use(httpErrorHandlerMiddleware())
+  .use(httpCorsMiddleware())

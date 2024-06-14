@@ -1,24 +1,30 @@
-import 'source-map-support/register'
-import * as middy from 'middy'
-import { cors, httpErrorHandler } from 'middy/middlewares'
+import 'source-map-support/register.js'
+import middy from '@middy/core'
+import httpCorsMiddleware from '@middy/http-cors'
+import httpErrorHandlerMiddleware from '@middy/http-error-handler'
 
-import { updateTodo } from '../../businessLogic/todos'
-import { getUserId } from '../utils'
 
-export const handler = middy(async (event) => {
+import { update } from '../../businessLogic/todos.mjs'
+import { getUserId } from '../utils.mjs'
+
+export const handler = middy({
+  timeoutEarlyResponse: () => {
+    return {
+      statusCode: 408
+    }
+  }
+}).handler(async (event) => {
   const todoId = event.pathParameters.todoId
   const updatedTodo = JSON.parse(event.body)
 
   const userId = getUserId(event)
-  await updateTodo(userId, todoId, updatedTodo)
+  await update(userId, todoId, updatedTodo)
 
   return {
     statusCode: 200,
     body: JSON.stringify({})
   }
-}).use(httpErrorHandler())
-  .use(
-    cors({
-      credentials: true
-    })
-  )
+})
+.use(httpErrorHandlerMiddleware())
+.use(httpCorsMiddleware())
+

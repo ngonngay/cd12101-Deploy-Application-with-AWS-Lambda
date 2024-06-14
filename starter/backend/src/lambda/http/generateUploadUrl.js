@@ -1,11 +1,19 @@
-import 'source-map-support/register'
-import * as middy from 'middy'
-import { cors, httpErrorHandler } from 'middy/middlewares'
+import 'source-map-support/register.js'
+import middy from '@middy/core'
+import httpCorsMiddleware from '@middy/http-cors'
+import httpErrorHandlerMiddleware from '@middy/http-error-handler'
 
-import { generateAttachmentUrl } from '../../businessLogic/todos'
-import { getUserId } from '../utils'
 
-export const handler = middy(async (event) => {
+import { generateAttachmentUrl } from '../../businessLogic/todos.mjs'
+import { getUserId } from '../utils.mjs'
+
+export const handler = middy({
+  timeoutEarlyResponse: () => {
+    return {
+      statusCode: 408
+    }
+  }
+}).handler(async (event) => {
   const todoId = event.pathParameters.todoId
 
   const userId = getUserId(event)
@@ -17,9 +25,7 @@ export const handler = middy(async (event) => {
       uploadUrl
     })
   }
-}).use(httpErrorHandler())
-  .use(
-    cors({
-      credentials: true
-    })
-  )
+})
+.use(httpErrorHandlerMiddleware())
+.use(httpCorsMiddleware())
+

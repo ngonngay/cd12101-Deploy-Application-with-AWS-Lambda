@@ -1,5 +1,5 @@
-import { TodosAccess } from '../dataLayer/todosAcess'
-import { createLogger } from '../utils/logger'
+import { TodosAccess } from '../dataLayer/todosAcess.mjs'
+import { createLogger } from '../utils/logger.mjs'
 import * as uuid from 'uuid'
 
 const log = createLogger('TodosService')

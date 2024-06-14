@@ -1,11 +1,11 @@
 
-import { AttachmentUtils } from '../utils/attachmentUtils';
-import { createLogger } from '../utils/logger';
-import * as AWS from 'aws-sdk';
+import { AttachmentUtils } from '../utils/attachmentUtils.mjs';
+import { createLogger } from '../utils/logger.mjs';
+import AWS from 'aws-sdk';
 
-const AWSXRay = require('aws-xray-sdk');
-const log = createLogger('TodosAccess');
+import AWSXRay from 'aws-xray-sdk'
 const XAWS = AWSXRay.captureAWS(AWS);
+const log = createLogger('TodosAccess');
 
 export class TodosAccess {
   constructor() {
@@ -40,7 +40,7 @@ export class TodosAccess {
       },
     }).promise();
 
-    const presignedUrl = await attachmentUtils.createAttachmentPresignedUrl(attachmentId);
+    const presignedUrl = await attachmentUtils.generatePresignedUrl(attachmentId);
     log.info(`Generated presigned URL: ${presignedUrl}`);
     return presignedUrl;
   }

@@ -1,10 +1,18 @@
-import 'source-map-support/register'
-import * as middy from 'middy'
-import { cors } from 'middy/middlewares'
-import { getUserId } from '../utils'
-import { create } from '../../businessLogic/todos'
+import 'source-map-support/register.js'
 
-export const handler = middy(async (event) => {
+import middy from '@middy/core'
+import httpCorsMiddleware from '@middy/http-cors'
+
+import { getUserId } from '../utils.mjs'
+import { create } from '../../businessLogic/todos.mjs'
+
+export const handler = middy({
+  timeoutEarlyResponse: () => {
+    return {
+      statusCode: 408
+    }
+  }
+}).handler(async (event) => {
   const newTodo = JSON.parse(event.body)
   // TODO: Implement creating a new TODO item
 
@@ -12,22 +20,10 @@ export const handler = middy(async (event) => {
   const userId = getUserId(event)
 
   const result = await create(newTodo, userId)
-  if (!result) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({
-        item: 'bad request'
-      })
-    }
-  }
   return {
     statusCode: 201,
     body: JSON.stringify({
       item: result
     })
   }
-}).use(
-  cors({
-    credentials: true
-  })
-)
+}).use(httpCorsMiddleware())

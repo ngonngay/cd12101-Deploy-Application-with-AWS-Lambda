@@ -12,7 +12,7 @@ export function NewTodoInput({ onNewTodo }) {
   const onTodoCreate = async (event) => {
     try {
       const accessToken = await getAccessTokenSilently({
-        audience: `https://test-endpoint.auth0.com/api/v2/`,
+        audience: `https://dev-6fxrgm4vk60sjk8a.us.auth0.com/api/v2/`,
         scope: 'write:todos'
       })
       const dueDate = calculateDueDate()
